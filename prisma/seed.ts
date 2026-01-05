@@ -1,7 +1,7 @@
 // import { PrismaClient } from 'src/generated/prisma/client';
 import * as bcrypt from 'bcrypt';
 import * as dotenv from 'dotenv';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 dotenv.config();
 
