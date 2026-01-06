@@ -8,8 +8,12 @@ import {
 } from '@nestjs/common';
 import { AuthDto } from './dto/auth.dto';
 import { AuthService } from './auth.service';
-import { Public } from './public.decorator';
 import { AuthGuard } from './auth.guard';
+// import { Request } from 'express';
+
+interface RequestWithUser extends Request {
+  user: { id: number; email: string };
+}
 
 @Controller('auth')
 export class AuthController {
@@ -22,7 +26,7 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @Get('/me')
-  me(@Request() req) {
+  me(@Request() req: RequestWithUser) {
     return req.user;
   }
 }
