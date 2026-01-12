@@ -12,7 +12,10 @@ import { AuthGuard } from './auth.guard';
 // import { Request } from 'express';
 
 interface RequestWithUser extends Request {
-  user: { id: number; email: string };
+  user: {
+    sub: number;
+    username: string;
+  };
 }
 
 @Controller('auth')
@@ -27,6 +30,6 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Get('/me')
   me(@Request() req: RequestWithUser) {
-    return req.user;
+    return this.authService.AuthMe(req.user.sub);
   }
 }

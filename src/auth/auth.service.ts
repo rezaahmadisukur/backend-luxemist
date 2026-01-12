@@ -7,6 +7,7 @@ import { AuthDto } from './dto/auth.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { LoginResponseDto } from './dto/auth-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +15,7 @@ export class AuthService {
     private readonly prismaService: PrismaService,
     private readonly jwtService: JwtService,
   ) {}
-  async AuthLogin(authDto: AuthDto): Promise<{ access_token: string }> {
+  async AuthLogin(authDto: AuthDto): Promise<LoginResponseDto> {
     const userExists = await this.findByEmail(authDto.email);
 
     if (!userExists) {
@@ -32,11 +33,35 @@ export class AuthService {
     const payload = { sub: userExists.id, username: userExists.email };
 
     return {
-      access_token: await this.jwtService.signAsync(payload),
+      message: 'Login Successfully',
+      token: await this.jwtService.signAsync(payload),
+      admin: {
+        id: userExists.id,
+        name: userExists.name,
+        email: userExists.email,
+      },
     };
   }
 
-  AuthMe() {}
+  async AuthMe(userId: number) {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const result = {
+      admin: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+    };
+
+    return result;
+  }
 
   async findByEmail(email: string) {
     const user = await this.prismaService.user.findUnique({
