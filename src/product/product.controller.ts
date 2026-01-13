@@ -14,14 +14,24 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 
+interface RequestWithUser extends Request {
+  user: {
+    sub: number;
+    username: string;
+  };
+}
+
 @Controller('product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createProductDto: CreateProductDto, @Request() req) {
-    const userId = req.user.sub as number;
+  create(
+    @Body() createProductDto: CreateProductDto,
+    @Request() req: RequestWithUser,
+  ) {
+    const userId = req.user.sub;
     return this.productService.create(createProductDto, userId);
   }
 

@@ -38,7 +38,8 @@ export class AuthGuard implements CanActivate {
         token,
       );
       request['user'] = payload;
-    } catch {
+    } catch (error) {
+      console.log('❌ GAGAL VERIFIKASI:', error);
       throw new UnauthorizedException();
     }
     return true;

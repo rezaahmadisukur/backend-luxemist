@@ -15,8 +15,8 @@ export class ProductService {
     return await this.prisma.product.create({
       data: {
         ...createProductDto,
+        authorId: userId,
       },
-      authorId: userId,
     });
   }
 
