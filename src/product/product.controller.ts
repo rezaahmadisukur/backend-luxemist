@@ -13,6 +13,7 @@ import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { Public } from 'src/auth/public.decorator';
 
 interface RequestWithUser extends Request {
   user: {
@@ -21,11 +22,11 @@ interface RequestWithUser extends Request {
   };
 }
 
+@UseGuards(AuthGuard)
 @Controller('product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  @UseGuards(AuthGuard)
   @Post()
   create(
     @Body() createProductDto: CreateProductDto,
@@ -35,6 +36,7 @@ export class ProductController {
     return this.productService.create(createProductDto, userId);
   }
 
+  @Public()
   @Get()
   findAll() {
     return this.productService.findAll();
