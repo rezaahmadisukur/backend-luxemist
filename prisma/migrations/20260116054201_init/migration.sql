@@ -17,7 +17,7 @@ CREATE TABLE "Product" (
     "description" TEXT,
     "price" DECIMAL(10,2) NOT NULL,
     "stock" INTEGER NOT NULL DEFAULT 0,
-    "image" TEXT,
+    "cover" TEXT,
     "category" TEXT,
     "volume" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
