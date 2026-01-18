@@ -5,6 +5,8 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ProductModule } from './product/product.module';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './auth/constants';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -13,6 +15,10 @@ import { jwtConstants } from './auth/constants';
       global: true,
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '1d' },
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'uploads'),
+      serveRoot: '/uploads',
     }),
     AuthModule,
     PrismaModule,

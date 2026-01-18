@@ -8,12 +8,17 @@ import {
   Delete,
   UseGuards,
   Request,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Public } from 'src/auth/public.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { extname } from 'path';
+import { diskStorage } from 'multer';
 
 interface RequestWithUser extends Request {
   user: {
@@ -28,11 +33,32 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Post()
+  @UseInterceptors(
+    FileInterceptor('cover', {
+      storage: diskStorage({
+        destination: './uploads', // folder penyimpanan pastikan folder ini ada
+        filename: (req, file, callback) => {
+          // bikin nama file unique agar tidak bentrok
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const ext = extname(file.originalname);
+          callback(null, `${uniqueSuffix}${ext}`);
+        },
+      }),
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
   create(
     @Body() createProductDto: CreateProductDto,
     @Request() req: RequestWithUser,
+    @UploadedFile() file: Express.Multer.File,
   ) {
     const userId = req.user.sub;
+
+    if (file) {
+      createProductDto.cover = file.filename;
+    }
+
     return this.productService.create(createProductDto, userId);
   }
 

@@ -29,7 +29,7 @@ export class CreateProductDto {
 
   @IsString()
   @IsOptional()
-  image?: string;
+  cover?: string;
 
   @IsString()
   @IsOptional()
