@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Product } from '@prisma/client';
+import { join } from 'path';
+import fs from 'fs';
 
 @Injectable()
 export class ProductService {
@@ -32,7 +34,34 @@ export class ProductService {
     return `This action updates a #${id} product`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async remove(id: number) {
+    const product = await this.prisma.product.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!product) {
+      throw new NotFoundException('Product Not Found');
+    }
+
+    if (product.cover) {
+      // make path
+      const filePath = join(process.cwd(), 'uploads', product.cover);
+
+      if (fs.existsSync(filePath)) {
+        try {
+          fs.unlinkSync(filePath);
+        } catch (error) {
+          console.error('Failed remove product', error);
+        }
+      }
+    }
+
+    return this.prisma.product.delete({
+      where: {
+        id: id,
+      },
+    });
   }
 }
