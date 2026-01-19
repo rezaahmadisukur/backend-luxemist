@@ -30,8 +30,50 @@ export class ProductService {
     return `This action returns a #${id} product`;
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(
+    id: number,
+    updateProductDto: UpdateProductDto,
+    file: Express.Multer.File,
+  ) {
+    // Get old product
+    const oldProduct = await this.prisma.product.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!oldProduct) {
+      if (file) {
+        fs.unlinkSync(file.path);
+      }
+      throw new NotFoundException('Product Not Found');
+    }
+
+    if (file) {
+      updateProductDto.cover = file.filename;
+    }
+
+    const updateProduct = await this.prisma.product.update({
+      where: {
+        id: id,
+      },
+      data: updateProductDto,
+    });
+
+    // Delete old cover
+    if (file && oldProduct.cover) {
+      const oldFilePath = join(process.cwd(), 'uploads', oldProduct.cover);
+
+      if (oldFilePath) {
+        try {
+          fs.unlinkSync(oldFilePath);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    }
+
+    return updateProduct;
   }
 
   async remove(id: number) {

@@ -37,7 +37,7 @@ export class ProductController {
     FileInterceptor('cover', {
       storage: diskStorage({
         destination: './uploads', // folder penyimpanan pastikan folder ini ada
-        filename: (req, file, callback) => {
+        filename: (_req, file, callback) => {
           // bikin nama file unique agar tidak bentrok
           const uniqueSuffix =
             Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -74,8 +74,26 @@ export class ProductController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productService.update(+id, updateProductDto);
+  @UseInterceptors(
+    FileInterceptor('cover', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (_req, file, callback) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const ext = extname(file.originalname);
+          callback(null, `${uniqueSuffix}${ext}`);
+        },
+      }),
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
+  update(
+    @Param('id') id: string,
+    @Body() updateProductDto: UpdateProductDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.productService.update(+id, updateProductDto, file);
   }
 
   @Delete(':id')
