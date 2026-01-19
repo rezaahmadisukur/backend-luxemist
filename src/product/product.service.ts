@@ -22,12 +22,16 @@ export class ProductService {
     });
   }
 
-  findAll() {
-    return this.prisma.product.findMany();
+  async findAll() {
+    return await this.prisma.product.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(id: number) {
+    return await this.prisma.product.findUnique({
+      where: {
+        id,
+      },
+    });
   }
 
   async update(
