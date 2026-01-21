@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Product } from '@prisma/client';
+import { Product, Prisma } from '@prisma/client';
 import { join } from 'path';
 import fs from 'fs';
 
@@ -22,8 +22,30 @@ export class ProductService {
     });
   }
 
-  async findAll() {
-    return await this.prisma.product.findMany();
+  async findAll(search?: string, category?: string) {
+    const whereCondition: Prisma.ProductWhereInput = {};
+
+    if (search && typeof search === 'string' && search.trim() !== '') {
+      whereCondition.OR = [
+        {
+          name: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+      ];
+    }
+
+    if (category && typeof category === 'string' && category !== '') {
+      whereCondition.category = category;
+    }
+
+    return await this.prisma.product.findMany({
+      where: whereCondition,
+      orderBy: {
+        id: 'desc',
+      },
+    });
   }
 
   async findOne(id: number) {
