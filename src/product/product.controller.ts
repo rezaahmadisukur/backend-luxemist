@@ -65,7 +65,10 @@ export class ProductController {
 
   @Public()
   @Get()
-  findAll(@Query() search?: string, @Query() category?: string) {
+  findAll(
+    @Query('search') search?: string,
+    @Query('category') category?: string,
+  ) {
     return this.productService.findAll(search, category);
   }
 
