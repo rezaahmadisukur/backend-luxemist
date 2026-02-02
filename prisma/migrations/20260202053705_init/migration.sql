@@ -1,3 +1,6 @@
+-- CreateEnum
+CREATE TYPE "Category" AS ENUM ('Man', 'Women');
+
 -- CreateTable
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,

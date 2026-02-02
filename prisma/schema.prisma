@@ -23,6 +23,11 @@ model User {
   products Product[]
 }
 
+enum Category {
+  Man
+  Women
+}
+
 model Product {
   id Int @id @default(autoincrement())
   name String
